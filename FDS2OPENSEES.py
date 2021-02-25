@@ -10,7 +10,6 @@ except ImportError:
     import ttk
     import tkFileDialog as filedialog
 import os
-import csv
 import pandas as pd
 import numpy as np
 
@@ -100,21 +99,50 @@ def bcfile(counter):  # this function generate the files for each boundary condi
 
     while counter <= int(num.get()):
         df3 = pd.read_csv("TempFile/Devices3.csv")
-        df3 = df3.round(2)
+        df3 = df3.round(1)
         dfX = df3.iloc[:, (counter-1)]
-        data1 = open("AST/AST{}.dat".format(counter), 'w', newline='')
-        result = pd.concat([dfT, dfX], axis=1, sort=False)
-        result.to_csv(data1, sep=" ", header=None, index=False)
-        data1.close()
+        dfHF = pd.read_csv("TempFile/Devices2.csv")
+        dfHF = dfHF.round(3)
+        heatFlux = df3.iloc[:, (int(num.get()) + counter-1)]
+        htc = df3.iloc[:, (2*int(num.get()) + counter-1)]
+        if clicked2.get() == "AST":
+            data1 = open("AST/AST{}.dat".format(counter), 'w', newline='')
+            result = pd.concat([dfT, dfX], axis=1, sort=False)
+            result.to_csv(data1, sep=" ", header=None, index=False)
+            data1.close()
+        if clicked2.get() == "HF":
+            data1 = open("HF/HF{}.dat".format(counter), 'w', newline='')
+            result = pd.concat([dfT, heatFlux*1000], axis=1, sort=False)
+            result.to_csv(data1, sep=" ", header=None, index=False)
+            data1.close()
+        if clicked2.get() == "AST_HTC":
+            data1 = open("AST_HTC/AST_HTC{}.dat".format(counter), 'w', newline='')
+            result = pd.concat([dfT, dfX, htc], axis=1, sort=False)
+            result.to_csv(data1, sep=" ", header=None, index=False)
+            data1.close()
+        if clicked2.get() == "HF_HTC":
+            data1 = open("HF_HTC/HF_HTC{}.dat".format(counter), 'w', newline='')
+            result = pd.concat([dfT, heatFlux*1000, htc], axis=1, sort=False)
+            result.to_csv(data1, sep=" ", header=None, index=False)
+            data1.close()
 
         counter += 1
 
 
 def output():  # this is the main function for providing the output based on the user requirement
     iDev = 1   # counter for devices
+    createFolder("./TempFile")
     if clicked2.get() == "AST":
         createFolder("./AST")
-        createFolder("./TempFile")
+        bcfile(iDev)
+    if clicked2.get() == "HF":
+        createFolder("./HF")
+        bcfile(iDev)
+    if clicked2.get() == "AST_HTC":
+        createFolder("./AST_HTC")
+        bcfile(iDev)
+    if clicked2.get() == "HF_HTC":
+        createFolder("./HF_HTC")
         bcfile(iDev)
 
 
